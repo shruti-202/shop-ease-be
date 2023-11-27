@@ -129,12 +129,10 @@ const loginUser = async (req, res) => {
       });
     }
     if (email === userRecord.email && md5(password) === userRecord.password) {
-      console.log("Ran till here");
       const payload = {
         username: userRecord.name,
         id: userRecord._id,
       };
-      console.log(payload);
       const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
         expiresIn: "1d",
       });
