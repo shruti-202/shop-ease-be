@@ -2,8 +2,7 @@ const Products = require("../models/ProductModel");
 const { nameValidator } = require("../constants/Validator");
 
 const addProduct = async (req, res) => {
-  let { name, description, category, price, discountedPrice, productImages } =
-    req.body;
+  let { name, description, category, price, discountedPrice, productImages } = req.body;
   if (!name) {
     return res.status(400).json({
       statusCode: 400,

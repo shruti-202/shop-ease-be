@@ -23,7 +23,7 @@ router.post('/register', registerUser);
 
 router.post('/login', loginUser);
 
-router.get('/get-users', getUsers)
+router.get('/get-users', passport.authenticate('jwt',{session: false}), getUsers)
 
 router.post('/add-banner', passport.authenticate('jwt',{session: false}), addBanner)
 
@@ -43,8 +43,8 @@ router.delete('/delete-product/:productId', passport.authenticate('jwt',{session
 
 router.post('/upload',upload.single('banner'),(req,res) => {
     console.log(req.file)
-    return res.status(200).json({
-        statusCode: 200,
+    return res.status(201).json({
+        statusCode: 201,
         message: 'File uploaded successfully',
         data: `${process.env.BASE_URL}/files/${req.file.filename}`
     })

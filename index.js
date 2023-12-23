@@ -8,7 +8,10 @@ const passport = require("passport");
 const { initializePassport } = require("./passport");
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 mongoConnection(process.env.DATABASE_URL);
 
 app.use('/files',express.static('uploads'))
@@ -23,4 +26,4 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/health", healthRoute);
 app.use(authRoutes);
 
-app.listen(process.env.APP_PORT);
+app.listen(process.env.APP_PORT,()=>console.log(`APP IS LISTENING ON PORT:${process.env.APP_PORT}`));

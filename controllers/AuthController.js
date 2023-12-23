@@ -1,10 +1,10 @@
-const { nameValidator, emailValidator, passwordValidator } = require("../constants/Validator");
+const { nameValidator, emailValidator, userNameValidator, passwordValidator } = require("../constants/Validator");
 const Users = require("../models/UserModel");
 const md5 = require("md5");
 const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res) => {
-  let { name, email, password } = req.body;
+  let { name, email, phone, password } = req.body;
 
   if (!name) {
     return res.status(400).json({
@@ -38,6 +38,18 @@ const registerUser = async (req, res) => {
       message: "Invalid Email Address",
     });
   }
+  if (!phone) {
+    return res.status(400).json({
+      statusCode: 400,
+      message: "Phone Number cannot be empty",
+    });
+  }
+  if (phone.length < 10 || phone.length > 10) {
+    return res.status(400).json({
+      statusCode: 400,
+      message: "Invalid Phone Number",
+    });
+  }
   if (!password) {
     return res.status(400).json({
       statusCode: 400,
@@ -60,6 +72,14 @@ const registerUser = async (req, res) => {
         message: "Email Already Exists",
       });
     }
+    const userByUserPhone = await Users.findOne({ phone });
+    if (userByUserPhone) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Phone Number Already Exists",
+      });
+    }
+    password = md5(password);
     const userByUserPassword = await Users.findOne({ password });
     if (userByUserPassword) {
       return res.status(400).json({
@@ -67,8 +87,7 @@ const registerUser = async (req, res) => {
         message: "Password Already Exists",
       });
     }
-    password = md5(password);
-    const newUser = new Users({ name, email, password });
+    const newUser = new Users({ name, email, phone, password });
     newUser
       .save()
       .then((result) => {
@@ -112,14 +131,7 @@ const loginUser = async (req, res) => {
       message: "Password cannot be empty",
     });
   }
-  if (!passwordValidator(password)) {
-    return res.status(400).json({
-      statusCode: 400,
-      message:
-        "Password should have minimum of eight characters, at least 1 uppercase , lowercase , number & special character:",
-    });
-  }
-
+  
   try {
     const userRecord = await Users.findOne({ email });
     if (!userRecord) {
@@ -133,14 +145,12 @@ const loginUser = async (req, res) => {
         username: userRecord.name,
         id: userRecord._id,
       };
-      const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-        expiresIn: "1d",
-      });
+      const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
       res.cookie("token", token);
       return res.status(200).json({
         statusCode: 200,
-        message: "User Login Successful",
-        data: `Bearer ${token}`,
+        message: "User Login Successful"
+        // data: `Bearer ${token}`,
       });
     }
     return res.status(403).json({
